@@ -1,0 +1,33 @@
+variable "prefix" {
+  default = "syedsj"
+  type = string
+}
+
+resource "azurerm_resource_group" "javedrg" {
+  name = "${var.prefix}-rg"
+  location = "canada central"
+}
+
+resource "azurerm_service_plan" "asp" {
+  name                = "${var.prefix}asp"
+  resource_group_name = azurerm_resource_group.javedrg.name
+  location            = azurerm_resource_group.javedrg.location
+  os_type             = "Linux"
+  sku_name            = "S1"
+}
+
+resource "azurerm_linux_web_app" "as" {
+  name                = "${var.prefix}as"
+  resource_group_name = azurerm_resource_group.javedrg.name
+  location            = azurerm_service_plan.asp.location
+  service_plan_id     = azurerm_service_plan.asp.id
+
+  site_config {}
+}
+
+resource "azurerm_linux_web_app_slot" "slot1" {
+  name           = "${var.prefix}slot1"
+  app_service_id = azurerm_linux_web_app.as.id
+
+  site_config {}
+}
